@@ -61,11 +61,11 @@ class User(AbstractUser):
 
 class Reviews(models.Model):
     """ Определение модели отзывов """
-    title = models.ForeignKey(
-        Title,
-        on_delete=models.CASCADE,
-        verbose_name='произведение'
-    )
+    #title = models.ForeignKey(
+        #Title,
+        #on_delete=models.CASCADE,
+        #verbose_name='произведение'
+    #)
     text = models.CharField(
         max_length=200,
         verbose_name='текст'
@@ -87,7 +87,6 @@ class Reviews(models.Model):
     pub_date = models.DateTimeField(
         'дата публикации',
         auto_now_add=True,
-        index_db=True
     )
 
 class Meta:
@@ -103,6 +102,7 @@ class Meta:
 
 
 class Comments(models.Model):
+    """ Определение модели отзывов """
     review = models.ForeignKey(
         Reviews,
         on_delete=models.CASCADE,
