@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from django.core.validators import MaxValueValidator, MinValueValidator
+
 
 class User(AbstractUser):
     USER = 'user'
@@ -55,3 +57,72 @@ class User(AbstractUser):
                 name="username_is_not_me"
             )
         ]
+
+
+class Reviews(models.Model):
+    """ Определение модели отзывов """
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+        verbose_name='произведение'
+    )
+    text = models.CharField(
+        max_length=200,
+        verbose_name='текст'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='автор'
+    )
+    # встроенные валидаторы проверяют, что значения оценки от 1 до 10
+    # в противном случае вызывается  ValidationError
+    score = models.IntegerField(
+        'рейтинг',
+        validators=(
+        MinValueValidator(1),
+        MaxValueValidator(10)
+        )
+    )
+    pub_date = models.DateTimeField(
+        'дата публикации',
+        auto_now_add=True,
+        index_db=True
+    )
+
+class Meta:
+    default_related_name = 'reviews'
+    verbose_name = 'отзыв'
+    ordering = ('pub_date', )
+    constraints = [
+        models.UniqueConstraint(
+        fields=('title', 'author', ),
+        name='unique review'
+        )
+    ]
+
+
+class Comments(models.Model):
+    review = models.ForeignKey(
+        Reviews,
+        on_delete=models.CASCADE,
+        verbose_name='отзыв'
+    )
+    text = models.CharField(
+        max_length=200,
+        verbose_name='текст'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='автор'
+    )
+    pub_date = models.DateTimeField(
+        'дата публикации',
+        auto_now_add=True,
+    )
+
+class Meta:
+    default_related_name = 'сomments'
+    verbose_name='комментарий'
+    ordering = ('pub_date', )
