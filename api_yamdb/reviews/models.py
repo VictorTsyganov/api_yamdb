@@ -59,7 +59,7 @@ class User(AbstractUser):
         ]
 
 
-class Reviews(models.Model):
+class Review(models.Model):
     """ Определение модели отзывов """
     #title = models.ForeignKey(
         #Title,
@@ -78,14 +78,14 @@ class Reviews(models.Model):
     # встроенные валидаторы проверяют, что значения оценки от 1 до 10
     # в противном случае вызывается  ValidationError
     score = models.IntegerField(
-        'рейтинг',
+        verbose_name='рейтинг',
         validators=(
         MinValueValidator(1),
         MaxValueValidator(10)
         )
     )
     pub_date = models.DateTimeField(
-        'дата публикации',
+        verbose_name='дата публикации',
         auto_now_add=True,
     )
 
@@ -101,10 +101,10 @@ class Meta:
     ]
 
 
-class Comments(models.Model):
-    """ Определение модели отзывов """
+class Comment(models.Model):
+    """ Определение модели комментариев """
     review = models.ForeignKey(
-        Reviews,
+        Review,
         on_delete=models.CASCADE,
         verbose_name='отзыв'
     )
@@ -118,7 +118,7 @@ class Comments(models.Model):
         verbose_name='автор'
     )
     pub_date = models.DateTimeField(
-        'дата публикации',
+        verbose_name='дата публикации',
         auto_now_add=True,
     )
 
