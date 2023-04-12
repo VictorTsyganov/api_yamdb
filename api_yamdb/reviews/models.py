@@ -183,8 +183,8 @@ class Review(models.Model):
     score = models.IntegerField(
         verbose_name='рейтинг',
         validators=(
-        MinValueValidator(1),
-        MaxValueValidator(10)
+            MinValueValidator(1),
+            MaxValueValidator(10)
         )
     )
     pub_date = models.DateTimeField(
@@ -192,14 +192,15 @@ class Review(models.Model):
         auto_now_add=True,
     )
 
+
 class Meta:
     default_related_name = 'reviews'
     verbose_name = 'отзыв'
     ordering = ('pub_date', )
     constraints = [
         models.UniqueConstraint(
-        fields=('title', 'author', ),
-        name='unique review'
+            fields=('title', 'author', ),
+            name='unique review'
         )
     ]
 
@@ -224,7 +225,8 @@ class Comment(models.Model):
         auto_now_add=True,
     )
 
+
 class Meta:
     default_related_name = 'сomments'
-    verbose_name='комментарий'
+    verbose_name = 'комментарий'
     ordering = ('pub_date', )

@@ -39,6 +39,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'api_yamdb.urls'
 
+DATA_DIR = BASE_DIR / 'static/data'
 TEMPLATES_DIR = BASE_DIR / 'templates'
 TEMPLATES = [
     {
