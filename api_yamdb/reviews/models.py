@@ -6,6 +6,7 @@ from .validators import validate_year
 
 
 class User(AbstractUser):
+    """ Модель описывающая пользователей. """
     USER = 'user'
     MODERATOR = 'moderator'
     ADMIN = 'admin'
@@ -179,29 +180,26 @@ class Review(models.Model):
         verbose_name='автор'
     )
     # встроенные валидаторы проверяют, что значения оценки от 1 до 10
-    # в противном случае вызывается  ValidationError
+    # в противном случае вызывается ValidationError
     score = models.IntegerField(
         verbose_name='рейтинг',
-        validators=(
-        MinValueValidator(1),
-        MaxValueValidator(10)
-        )
+        validators=(MinValueValidator(1),
+                    MaxValueValidator(10),
+                    )
     )
     pub_date = models.DateTimeField(
         verbose_name='дата публикации',
         auto_now_add=True,
     )
 
-class Meta:
-    default_related_name = 'reviews'
-    verbose_name = 'отзыв'
-    ordering = ('pub_date', )
-    constraints = [
-        models.UniqueConstraint(
-        fields=('title', 'author', ),
-        name='unique review'
-        )
-    ]
+    class Meta:
+        default_related_name = 'reviews'
+        verbose_name = 'отзыв'
+        ordering = ('pub_date', )
+        constraints = [
+            models.UniqueConstraint(fields=('title', 'author', ),
+                                    name='unique review', )
+        ]
 
 
 class Comment(models.Model):
@@ -224,7 +222,7 @@ class Comment(models.Model):
         auto_now_add=True,
     )
 
-class Meta:
-    default_related_name = 'сomments'
-    verbose_name='комментарий'
-    ordering = ('pub_date', )
+    class Meta:
+        default_related_name = 'сomments'
+        verbose_name = 'комментарий'
+        ordering = ('pub_date', )

@@ -1,3 +1,8 @@
-from django.shortcuts import render
 
-# Create your views here.
+
+def register(request):
+    ...
+
+
+def get_jwt_token(request):
+    ...
