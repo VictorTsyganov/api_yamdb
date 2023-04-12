@@ -1,3 +1,7 @@
-from django.shortcuts import render
 
-# Create your views here.
+class ReviewViewSet(viewsets.ModelViewSet):
+    ...
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    ...
