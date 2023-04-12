@@ -165,11 +165,11 @@ class GenreTitle(models.Model):
 
 class Review(models.Model):
     """ Определение модели отзывов """
-    #title = models.ForeignKey(
-        #Title,
-        #on_delete=models.CASCADE,
-        #verbose_name='произведение'
-    #)
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+        verbose_name='произведение'
+    )
     text = models.TextField(
         verbose_name='текст',
     )
