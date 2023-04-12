@@ -66,9 +66,8 @@ class Review(models.Model):
         #on_delete=models.CASCADE,
         #verbose_name='произведение'
     #)
-    text = models.CharField(
-        max_length=200,
-        verbose_name='текст'
+    text = models.TextField(
+        verbose_name='текст',
     )
     author = models.ForeignKey(
         User,
@@ -108,9 +107,8 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         verbose_name='отзыв'
     )
-    text = models.CharField(
-        max_length=200,
-        verbose_name='текст'
+    text = models.TextField(
+        verbose_name='текст',
     )
     author = models.ForeignKey(
         User,
