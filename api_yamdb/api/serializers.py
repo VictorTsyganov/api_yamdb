@@ -48,5 +48,3 @@ class TokenSerializer(UsernameSerializer):
         if user.confirmation_code == data['confirmation_code']:
             return data
         raise serializers.ValidationError('Wrong Code')
-
-
