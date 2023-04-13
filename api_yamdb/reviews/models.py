@@ -192,16 +192,16 @@ class Review(models.Model):
         auto_now_add=True,
     )
 
-class Meta:
-    default_related_name = 'reviews'
-    verbose_name = 'отзыв'
-    ordering = ('pub_date', )
-    constraints = [
-        models.UniqueConstraint(
-        fields=('title', 'author', ),
-        name='unique review'
-        )
-    ]
+    class Meta:
+        default_related_name = 'reviews'
+        verbose_name = 'отзыв'
+        ordering = ('pub_date', )
+        constraints = [
+            models.UniqueConstraint(
+            fields=('title', 'author', ),
+            name='unique review'
+            )
+        ]
 
 
 class Comment(models.Model):
@@ -224,7 +224,7 @@ class Comment(models.Model):
         auto_now_add=True,
     )
 
-class Meta:
-    default_related_name = 'сomments'
-    verbose_name='комментарий'
-    ordering = ('pub_date', )
+    class Meta:
+        default_related_name = 'сomments'
+        verbose_name='комментарий'
+        ordering = ('pub_date', )
