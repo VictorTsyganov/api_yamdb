@@ -129,11 +129,6 @@ class Title(models.Model):
         related_name='titles',
         null=True
     )
-    rating = models.IntegerField(
-        verbose_name='Рейтинг',
-        null=True,
-        default=None
-    )
 
     def __str__(self):
         return self.name
@@ -178,13 +173,11 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         verbose_name='автор'
     )
-    # встроенные валидаторы проверяют, что значения оценки от 1 до 10
-    # в противном случае вызывается  ValidationError
     score = models.IntegerField(
-        verbose_name='рейтинг',
+        verbose_name='оценка',
         validators=(
-        MinValueValidator(1),
-        MaxValueValidator(10)
+            MinValueValidator(1),
+            MaxValueValidator(10)
         )
     )
     pub_date = models.DateTimeField(
@@ -198,8 +191,8 @@ class Review(models.Model):
         ordering = ('pub_date', )
         constraints = [
             models.UniqueConstraint(
-            fields=('title', 'author', ),
-            name='unique review'
+                fields=('title', 'author', ),
+                name='unique review'
             )
         ]
 
@@ -209,7 +202,8 @@ class Comment(models.Model):
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
-        verbose_name='отзыв'
+        verbose_name='отзыв',
+        related_name='comments',
     )
     text = models.TextField(
         verbose_name='текст',
@@ -217,7 +211,8 @@ class Comment(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='автор'
+        verbose_name='автор',
+        related_name='comments',
     )
     pub_date = models.DateTimeField(
         verbose_name='дата публикации',
@@ -225,6 +220,5 @@ class Comment(models.Model):
     )
 
     class Meta:
-        default_related_name = 'сomments'
         verbose_name='комментарий'
-        ordering = ('pub_date', )
+        ordering =('pub_date', )
