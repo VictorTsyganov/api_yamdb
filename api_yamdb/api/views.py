@@ -2,22 +2,26 @@ from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db import IntegrityError
-from django.shortcuts import get_object_or_404
 from django.db.models import Avg
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status, viewsets, filters
+from rest_framework import filters, permissions, status, viewsets
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.exceptions import ValidationError
-from rest_framework.decorators import api_view, action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
-from reviews.models import User, Review, Title, Category, Genre, Title
-from .serializers import SignupSerializer, TokenSerializer, UserSerializer, CommentSerializer, ReviewSerializer, CategorySerializer, GenreSerializer, TitleSerializer, ReadOnlyTitleSerializer
-from .permissions import IsAdmin, AdminModeratorAuthorPermission, IsAdminOrReadOnly
+from reviews.models import Category, Comment, Genre, Review, Title, User
 from .filters import TitlesFilter
 from .mixins import ListCreateDestroyViewSet
+from .permissions import (AdminModeratorAuthorPermission, IsAdmin,
+                          IsAdminOrReadOnly)
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, ReadOnlyTitleSerializer,
+                          ReviewSerializer, SignupSerializer, TitleSerializer,
+                          TokenSerializer, UserSerializer)
 
 
 class CategoryViewSet(ListCreateDestroyViewSet):
@@ -40,7 +44,7 @@ class GenreViewSet(ListCreateDestroyViewSet):
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all().annotate(
-        Avg('review__score')
+        Avg('reviews__score')
     ).order_by("name")
     serializer_class = TitleSerializer
     permission_classes = (IsAdminOrReadOnly,)
@@ -55,6 +59,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 
 @api_view(('POST',))
+@permission_classes([permissions.AllowAny])
 def signup(request):
     """Регистрация и отправка кода на почту."""
     serializer = SignupSerializer(data=request.data)
@@ -76,6 +81,7 @@ def signup(request):
 
 
 @api_view(('POST',))
+@permission_classes([permissions.AllowAny])
 def get_token(request):
     """Получение токена авторизации."""
     serializer = TokenSerializer(data=request.data)
@@ -148,10 +154,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = (AdminModeratorAuthorPermission,)
 
     def get_queryset(self):
-        review = get_object_or_404(
-            Review,
-            id=self.kwargs.get('review_id'))
-        return review.сomments.all()
+        return Comment.objects.filter(review__id=self.kwargs.get('review_id'))
 
     def perform_create(self, serializer):
         review = get_object_or_404(

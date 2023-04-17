@@ -1,8 +1,8 @@
-from rest_framework import serializers
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
+from rest_framework import serializers
 
-from reviews.models import Comment, Review, Title, User, Category, Genre, Title
+from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -147,7 +147,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
 class ReadOnlyTitleSerializer(serializers.ModelSerializer):
     rating = serializers.IntegerField(
-        source='review__score__avg', read_only=True
+        source='reviews__score__avg', read_only=True
     )
     genre = GenreSerializer(many=True)
     category = CategorySerializer()

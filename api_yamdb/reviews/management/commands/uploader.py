@@ -1,10 +1,10 @@
 import csv
 import sqlite3
-from django.core.management.base import BaseCommand
 from django.conf import settings
+from django.core.management.base import BaseCommand
 
-from reviews.models import (User, Category, Genre, Title,
-                            GenreTitle, Review, Comment)
+from reviews.models import (Category, Comment, Genre, GenreTitle, Review,
+                            Title, User)
 
 
 class Command(BaseCommand):
@@ -57,8 +57,9 @@ class Command(BaseCommand):
                                 f' VALUES {tuple(reader[j])};')
                         except Exception as err:
                             print(
-                                f'Строка {tuple(reader[j])} из файла {file_csv}'
-                                f' не была загружена в БД. Ошибка: {err}')
+                                f'Строка {tuple(reader[j])} из файла'
+                                f' {file_csv} не была загружена'
+                                f' в БД. Ошибка: {err}')
                 con.commit()
                 con.close()
                 print(

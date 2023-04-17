@@ -9,7 +9,9 @@ def validate_username(value):
             params={'value': value},
         )
 
+
 def validate_year(value):
     if value > timezone.now().year:
         raise ValidationError(
             ('Год %(value)s больше текущего!'),
+        )

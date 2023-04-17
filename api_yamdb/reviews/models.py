@@ -1,8 +1,8 @@
 from django.contrib.auth.models import AbstractUser
-from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
 
-from .validators import validate_year, validate_username
+from .validators import validate_username, validate_year
 
 
 class User(AbstractUser):
@@ -183,7 +183,8 @@ class Review(models.Model):
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
-        verbose_name='произведение'
+        verbose_name='произведение',
+        related_name='reviews'
     )
     text = models.TextField(
         verbose_name='текст',
@@ -191,7 +192,8 @@ class Review(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='автор'
+        verbose_name='автор',
+        related_name='reviews'
     )
     score = models.IntegerField(
         verbose_name='оценка',
@@ -206,7 +208,6 @@ class Review(models.Model):
     )
 
     class Meta:
-        default_related_name = 'reviews'
         verbose_name = 'отзыв'
         ordering = ('pub_date', )
         constraints = [
@@ -223,7 +224,7 @@ class Comment(models.Model):
         Review,
         on_delete=models.CASCADE,
         verbose_name='отзыв',
-        related_name='comments',
+        related_name='comments'
     )
     text = models.TextField(
         verbose_name='текст',
@@ -232,7 +233,7 @@ class Comment(models.Model):
         User,
         on_delete=models.CASCADE,
         verbose_name='автор',
-        related_name='comments',
+        related_name='comments'
     )
     pub_date = models.DateTimeField(
         verbose_name='дата публикации',
@@ -240,5 +241,5 @@ class Comment(models.Model):
     )
 
     class Meta:
-        verbose_name='комментарий'
-        ordering =('pub_date', )
+        verbose_name = 'комментарий'
+        ordering = ('pub_date', )
