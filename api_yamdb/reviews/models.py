@@ -2,62 +2,77 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
-from .validators import validate_year
+from .validators import validate_year, validate_username
 
 
 class User(AbstractUser):
+    """Модель пользователя."""
+
     USER = 'user'
-    MODERATOR = 'moderator'
     ADMIN = 'admin'
-    ROLES = {
-        (USER, 'user'),
-        (MODERATOR, 'moderator'),
-        (ADMIN, 'admin'),
-    }
+    MODERATOR = 'moderator'
+
+    USER_ROLES = (
+        (USER, 'Пользователь'),
+        (ADMIN, 'Администратор'),
+        (MODERATOR, 'Модератор'),
+    )
+
     username = models.CharField(
         verbose_name='Имя пользователя',
+        validators=(validate_username, ),
         max_length=150,
-        null=True,
         unique=True,
+        null=True
     )
     email = models.EmailField(
         verbose_name='Электронная почта',
-        unique=True,
+        max_length=254,
+        unique=True
+    )
+    first_name = models.CharField(
+        verbose_name='Имя',
+        max_length=150,
+        blank=True
+    )
+    last_name = models.CharField(
+        verbose_name='Фамилия',
+        max_length=150,
+        blank=True
+    )
+    bio = models.TextField(
+        verbose_name='Биография',
+        blank=True,
     )
     role = models.CharField(
         verbose_name='Роль',
-        max_length=50,
-        choices=ROLES,
+        max_length=20,
+        choices=USER_ROLES,
         default=USER,
+        blank=True
     )
-    bio = models.TextField(
-        verbose_name='О себе',
-        null=True,
-        blank=True,
-    )
-
-    @property
-    def is_moderator(self):
-        return self.role == self.MODERATOR
-
-    @property
-    def is_admin(self):
-        return self.role == self.ADMIN
-
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
 
     class Meta:
-        ordering = ['id']
+        ordering = ('id',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
-        constraints = [
-            models.CheckConstraint(
-                check=~models.Q(username__iexact="me"),
-                name="username_is_not_me"
-            )
-        ]
+    def __str__(self):
+        return self.username
+
+    @property
+    def is_admin(self):
+        return (
+            self.role == self.ADMIN
+            or self.is_superuser
+            or self.is_staff
+        )
+
+    @property
+    def is_moderator(self):
+        return (
+            self.role == self.MODERATOR
+        )
 
 
 class Category(models.Model):
@@ -178,10 +193,8 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         verbose_name='автор'
     )
-    # встроенные валидаторы проверяют, что значения оценки от 1 до 10
-    # в противном случае вызывается  ValidationError
     score = models.IntegerField(
-        verbose_name='рейтинг',
+        verbose_name='оценка',
         validators=(
             MinValueValidator(1),
             MaxValueValidator(10)
@@ -192,17 +205,16 @@ class Review(models.Model):
         auto_now_add=True,
     )
 
-
-class Meta:
-    default_related_name = 'reviews'
-    verbose_name = 'отзыв'
-    ordering = ('pub_date', )
-    constraints = [
-        models.UniqueConstraint(
-            fields=('title', 'author', ),
-            name='unique review'
-        )
-    ]
+    class Meta:
+        default_related_name = 'reviews'
+        verbose_name = 'отзыв'
+        ordering = ('pub_date', )
+        constraints = [
+            models.UniqueConstraint(
+                fields=('title', 'author', ),
+                name='unique review'
+            )
+        ]
 
 
 class Comment(models.Model):
@@ -210,7 +222,8 @@ class Comment(models.Model):
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
-        verbose_name='отзыв'
+        verbose_name='отзыв',
+        related_name='comments',
     )
     text = models.TextField(
         verbose_name='текст',
@@ -218,15 +231,14 @@ class Comment(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='автор'
+        verbose_name='автор',
+        related_name='comments',
     )
     pub_date = models.DateTimeField(
         verbose_name='дата публикации',
         auto_now_add=True,
     )
 
-
-class Meta:
-    default_related_name = 'сomments'
-    verbose_name = 'комментарий'
-    ordering = ('pub_date', )
+    class Meta:
+        verbose_name='комментарий'
+        ordering =('pub_date', )
