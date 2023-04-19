@@ -61,16 +61,10 @@ class SignupSerializer(serializers.Serializer):
         regex=r'^[\w.@+-]',
         required=True,
         max_length=150,
-        validators=[
-            UniqueValidator(queryset=User.objects.all())
-        ],
     )
     email = serializers.EmailField(
         required=True,
-        max_length=254,
-        validators=[
-            UniqueValidator(queryset=User.objects.all())
-        ],
+        max_length=254
     )
 
     class Meta:
@@ -101,22 +95,17 @@ class UserSerializer(serializers.ModelSerializer):
         regex=r'^[\w.@+-]',
         required=True,
         max_length=150,
+        validators=[
+            UniqueValidator(queryset=User.objects.all())
+        ],
     )
-
-    def validate(self, data):
-        username = data.get('username')
-        email = data.get('email')
-        if User.objects.filter(username=username, email=email).exists():
-            return data
-        if User.objects.filter(username=username).exists():
-            raise serializers.ValidationError(
-                f'Пользователь {username} уже существует'
-            )
-        if User.objects.filter(email=email).exists():
-            raise serializers.ValidationError(
-                f'Пользователь с адресом {email} уже существует'
-            )
-        return data
+    email = serializers.EmailField(
+        required=True,
+        max_length=254,
+        validators=[
+            UniqueValidator(queryset=User.objects.all())
+        ],
+    )
 
     class Meta:
         model = User
@@ -128,6 +117,20 @@ class UserSerializer(serializers.ModelSerializer):
             'bio',
             'role'
         )
+
+
+class UserEditSerializer(UserSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role'
+        )
+        read_only_fields = ('role',)
 
 
 class CategorySerializer(serializers.ModelSerializer):

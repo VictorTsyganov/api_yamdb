@@ -21,7 +21,7 @@ from .permissions import (AdminModeratorAuthorPermission, IsAdmin,
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReadOnlyTitleSerializer,
                           ReviewSerializer, SignupSerializer, TitleSerializer,
-                          TokenSerializer, UserSerializer)
+                          TokenSerializer, UserSerializer, UserEditSerializer)
 
 
 class CategoryViewSet(ListCreateDestroyViewSet):
@@ -111,21 +111,24 @@ class UserViewSet(viewsets.ModelViewSet):
         detail=False,
         methods=['get', 'patch'],
         url_path='me',
-        permission_classes=(IsAuthenticated,)
+        permission_classes=(IsAuthenticated,),
+        serializer_class=UserEditSerializer,
     )
-    def me(self, request, pk=None):
+    def me(self, request):
         instance = request.user
         if request.method == 'GET':
             serializer = self.get_serializer(instance)
             return Response(serializer.data)
-        serializer = self.get_serializer(
-            instance,
-            request.data,
-            partial=True
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save(role=instance.role, partial=True)
-        return Response(serializer.data)
+        if request.method == "PATCH":
+            serializer = self.get_serializer(
+                instance,
+                request.data,
+                partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save(role=instance.role, partial=True)
+            return Response(serializer.data)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
