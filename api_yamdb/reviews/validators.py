@@ -15,3 +15,8 @@ def validate_year(value):
         raise ValidationError(
             ('Год %(value)s больше текущего!'),
         )
+    if value < 1000:
+        raise ValidationError(
+            ('Год % (value)s меньше того периода,'
+             ' в котором появились первые летописи на Руси!'),
+        )

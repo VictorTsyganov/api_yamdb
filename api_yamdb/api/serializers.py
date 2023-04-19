@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
@@ -16,7 +17,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     )
 
     def validate_score(self, value):
-        if 0 > value > 10:
+        if 0 > value >= 10:
             raise serializers.ValidationError(
                 'Оценка может быть только от 1 до 10'
             )
@@ -59,9 +60,12 @@ class SignupSerializer(serializers.Serializer):
     username = serializers.RegexField(
         regex=r'^[\w.@+-]',
         required=True,
-        max_length=50
+        max_length=150,
     )
-    email = serializers.EmailField(required=True, max_length=50)
+    email = serializers.EmailField(
+        required=True,
+        max_length=254
+    )
 
     class Meta:
         model = User
@@ -79,7 +83,8 @@ class SignupSerializer(serializers.Serializer):
 class TokenSerializer(serializers.Serializer):
     """Сериализатор получения токена авторизации."""
     username = serializers.CharField(
-        required=True
+        required=True,
+        max_length=150,
     )
     confirmation_code = serializers.CharField(required=True)
 
@@ -89,20 +94,18 @@ class UserSerializer(serializers.ModelSerializer):
     username = serializers.RegexField(
         regex=r'^[\w.@+-]',
         required=True,
-        max_length=50
+        max_length=150,
+        validators=[
+            UniqueValidator(queryset=User.objects.all())
+        ],
     )
-
-    def validate_username(self, value):
-        if User.objects.filter(username=value).exists():
-            raise serializers.ValidationError(
-                'Пользователь с таким именем уже существует!')
-        return value
-
-    def validate_email(self, value):
-        if User.objects.filter(email=value).exists():
-            raise serializers.ValidationError(
-                'Пользователь с таким email уже существует!')
-        return value
+    email = serializers.EmailField(
+        required=True,
+        max_length=254,
+        validators=[
+            UniqueValidator(queryset=User.objects.all())
+        ],
+    )
 
     class Meta:
         model = User
@@ -114,6 +117,20 @@ class UserSerializer(serializers.ModelSerializer):
             'bio',
             'role'
         )
+
+
+class UserEditSerializer(UserSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role'
+        )
+        read_only_fields = ('role',)
 
 
 class CategorySerializer(serializers.ModelSerializer):
