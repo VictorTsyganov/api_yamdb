@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
@@ -16,7 +17,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     )
 
     def validate_score(self, value):
-        if 0 > value > 10:
+        if 0 > value >= 10:
             raise serializers.ValidationError(
                 'Оценка может быть только от 1 до 10'
             )
@@ -59,9 +60,18 @@ class SignupSerializer(serializers.Serializer):
     username = serializers.RegexField(
         regex=r'^[\w.@+-]',
         required=True,
-        max_length=50
+        max_length=150,
+        validators=[
+            UniqueValidator(queryset=User.objects.all())
+        ],
     )
-    email = serializers.EmailField(required=True, max_length=50)
+    email = serializers.EmailField(
+        required=True,
+        max_length=254,
+        validators=[
+            UniqueValidator(queryset=User.objects.all())
+        ],
+    )
 
     class Meta:
         model = User
@@ -79,7 +89,8 @@ class SignupSerializer(serializers.Serializer):
 class TokenSerializer(serializers.Serializer):
     """Сериализатор получения токена авторизации."""
     username = serializers.CharField(
-        required=True
+        required=True,
+        max_length=150,
     )
     confirmation_code = serializers.CharField(required=True)
 
@@ -89,20 +100,23 @@ class UserSerializer(serializers.ModelSerializer):
     username = serializers.RegexField(
         regex=r'^[\w.@+-]',
         required=True,
-        max_length=50
+        max_length=150,
     )
 
-    def validate_username(self, value):
-        if User.objects.filter(username=value).exists():
+    def validate(self, data):
+        username = data.get('username')
+        email = data.get('email')
+        if User.objects.filter(username=username, email=email).exists():
+            return data
+        if User.objects.filter(username=username).exists():
             raise serializers.ValidationError(
-                'Пользователь с таким именем уже существует!')
-        return value
-
-    def validate_email(self, value):
-        if User.objects.filter(email=value).exists():
+                f'Пользователь {username} уже существует'
+            )
+        if User.objects.filter(email=email).exists():
             raise serializers.ValidationError(
-                'Пользователь с таким email уже существует!')
-        return value
+                f'Пользователь с адресом {email} уже существует'
+            )
+        return data
 
     class Meta:
         model = User
