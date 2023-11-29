@@ -37,7 +37,7 @@ http://127.0.0.1:8000/redoc/
 1. Клонировать репозиторий:
 
    ```python
-   git clone 
+   git clone git@github.com:VictorTsyganov/api_yamdb.git 
    ```
 
 2. Перейти в папку с проектом:
@@ -49,7 +49,7 @@ http://127.0.0.1:8000/redoc/
 3. Установить виртуальное окружение для проекта:
 
    ```python
-   python -m venv venv
+   py -3.9 -m venv venv
    ```
 
 4. Активировать виртуальное окружение для проекта:
@@ -64,21 +64,22 @@ http://127.0.0.1:8000/redoc/
 5. Установить зависимости:
 
    ```python
-   python3 -m pip install --upgrade pip
+   python -m pip install --upgrade pip
    pip install -r requirements.txt
    ```
 
 6. Выполнить миграции на уровне проекта:
 
    ```python
-   cd yatube
-   python3 manage.py makemigrations
-   python3 manage.py migrate
+   cd api_yamdb/
+   python manage.py makemigrations
+   python manage.py migrate
    ```
 
-7. Запустить проект:
+7. Заполнить базу данных и запустить проект:
 
    ```python
+   python manage.py uploader
    python manage.py runserver
    ```
 
