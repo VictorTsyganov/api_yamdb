@@ -31,11 +31,13 @@ class CategoryViewSet(ListCreateDestroyViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
+    pagination_class = None
 
 
 class GenreViewSet(CategoryViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    pagination_class = None
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -47,6 +49,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ('name', 'year')
     filterset_class = TitlesFilter
+    pagination_class = None
 
     def get_serializer_class(self):
         if self.action in ('retrieve', 'list'):
@@ -134,6 +137,7 @@ class UserViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = (AdminModeratorAuthorPermission,)
+    pagination_class = None
 
     def get_queryset(self):
         title = get_object_or_404(
